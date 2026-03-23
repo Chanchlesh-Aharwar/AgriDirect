@@ -40,7 +40,7 @@ function Login() {
           <button>Login</button>
         </form>
 
-        <p>Don't have account? <a href="/register">Signup</a></p>
+        <p>Don't have account?? <a href="/register">Signup</a></p>
       </div>
     </div>
   );
