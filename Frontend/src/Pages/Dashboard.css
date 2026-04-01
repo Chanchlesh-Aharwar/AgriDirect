@@ -1,0 +1,286 @@
+.dashboard-container {
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.dashboard-header {
+  background: #28a745;
+  color: white;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.dashboard-header .nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.dashboard-header .nav-links a {
+  color: white;
+  text-decoration: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  transition: background 0.3s;
+}
+
+.dashboard-header .nav-links a:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.dashboard-header .logout-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.dashboard-content {
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-content h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.stat-card h3 {
+  margin: 0 0 10px 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.stat-card .value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #28a745;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.product-card {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.product-card .crop-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.product-card .info {
+  color: #666;
+  margin: 5px 0;
+}
+
+.product-card .price {
+  font-size: 1.3rem;
+  color: #28a745;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.product-card .status {
+  display: inline-block;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  margin-top: 10px;
+}
+
+.product-card .status.open {
+  background: #d4edda;
+  color: #155724;
+}
+
+.product-card .status.sold {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.product-card .status.closed {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.product-card .actions {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+}
+
+.product-card .btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.product-card .btn-primary {
+  background: #28a745;
+  color: white;
+}
+
+.product-card .btn-danger {
+  background: #dc3545;
+  color: white;
+}
+
+.form-container {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form-container h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.form-container input,
+.form-container select,
+.form-container textarea {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.form-container textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-container .btn {
+  width: 100%;
+  padding: 12px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.form-container .btn:hover {
+  background: #218838;
+}
+
+.bidding-section {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.bidding-section h2 {
+  margin-bottom: 20px;
+}
+
+.bidding-section .lot-details {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.bidding-section .bid-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.bidding-section .bid-form input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.bidding-section .bid-form button {
+  padding: 12px 30px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.bids-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.bid-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.bid-item:last-child {
+  border-bottom: none;
+}
+
+.bid-item.highest {
+  background: #d4edda;
+}
+
+.bid-item .amount {
+  font-weight: bold;
+  color: #28a745;
+}
+
+.no-data {
+  text-align: center;
+  padding: 50px;
+  color: #666;
+}
+
+.no-data p {
+  margin: 10px 0;
+}

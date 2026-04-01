@@ -2,9 +2,12 @@ package com.agridirect.backend.controller;
 
 import com.agridirect.backend.entity.User;
 import com.agridirect.backend.repository.UserRepository;
-
+import com.agridirect.backend.security.jwtutil;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -14,38 +17,53 @@ public class AuthController {
     private final UserRepository repo;
     private final PasswordEncoder encoder;
 
-    public AuthController(UserRepository repo, PasswordEncoder encoder){
+    public AuthController(UserRepository repo, PasswordEncoder encoder) {
         this.repo = repo;
         this.encoder = encoder;
     }
 
     @PostMapping("/register")
-    public String register(@RequestBody User user){
+    public ResponseEntity<?> register(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
 
-        if(repo.findByEmail(user.getEmail()).isPresent()){
-            return "Email already exists";
+        if (repo.findByEmail(email).isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email already exists"));
         }
 
-        user.setPassword(encoder.encode(user.getPassword()));
+        User user = new User();
+        user.setName(request.get("name"));
+        user.setEmail(email);
+        user.setPassword(encoder.encode(request.get("password")));
+        user.setRole(request.get("role"));
+        user.setPhone(request.get("phone"));
+
         repo.save(user);
 
-        return "Registered Successfully";
+        return ResponseEntity.ok(Map.of("message", "Registered Successfully"));
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody User user){
+    public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String password = request.get("password");
 
-        User dbUser = repo.findByEmail(user.getEmail()).orElseThrow();
+        User dbUser = repo.findByEmail(email).orElse(null);
 
-        if(encoder.matches(user.getPassword(), dbUser.getPassword())){
-            return "Login Success";
+        if (dbUser == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid email or password"));
         }
 
-        return "Invalid Credentials";
-    }
+        if (!encoder.matches(password, dbUser.getPassword())) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid email or password"));
+        }
 
-    @GetMapping("/test")
-    public String test(){
-        return "Backend Working ✅";
+        String token = jwtutil.generateToken(dbUser.getEmail(), dbUser.getRole());
+
+        return ResponseEntity.ok(Map.of(
+                "token", token,
+                "role", dbUser.getRole(),
+                "id", dbUser.getId(),
+                "name", dbUser.getName() != null ? dbUser.getName() : ""
+        ));
     }
 }
