@@ -33,6 +33,12 @@ public class Lot {
     @Column(name = "current_price", precision = 12, scale = 2)
     private BigDecimal currentPrice;
 
+    @Column(name = "total_price", precision = 12, scale = 2)
+    private BigDecimal totalPrice;
+
+    @Column(name = "image_url")
+    private String imageUrl;
+
     @Enumerated(EnumType.STRING)
     private Status status = Status.OPEN;
 
@@ -68,6 +74,12 @@ public class Lot {
 
     public BigDecimal getCurrentPrice() { return currentPrice; }
     public void setCurrentPrice(BigDecimal currentPrice) { this.currentPrice = currentPrice; }
+
+    public BigDecimal getTotalPrice() { return totalPrice; }
+    public void setTotalPrice(BigDecimal totalPrice) { this.totalPrice = totalPrice; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
     public Status getStatus() { return status; }
     public void setStatus(Status status) { this.status = status; }

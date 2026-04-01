@@ -51,6 +51,32 @@ public class BidController {
         return savedBid;
     }
 
+    @PutMapping("/{bidId}/accept")
+    public Bid acceptBid(@PathVariable Long bidId) {
+        Bid bid = bidRepository.findById(bidId).orElseThrow();
+        Lot lot = lotRepository.findById(bid.getLotId()).orElseThrow();
+        
+        lot.setStatus(Lot.Status.SOLD);
+        
+        BigDecimal finalTotalPrice = calculateFinalPrice(lot.getQuantity(), lot.getUnit(), bid.getBidAmount());
+        lot.setTotalPrice(finalTotalPrice);
+        
+        lotRepository.save(lot);
+        
+        bid.setStatus(Bid.Status.ACCEPTED);
+        return bidRepository.save(bid);
+    }
+
+    private BigDecimal calculateFinalPrice(BigDecimal quantity, Lot.Unit unit, BigDecimal finalBidAmount) {
+        BigDecimal multiplier = switch (unit) {
+            case KG -> BigDecimal.ONE;
+            case QUINTAL -> new BigDecimal("100");
+            case TON -> new BigDecimal("1000");
+            default -> BigDecimal.ONE;
+        };
+        return quantity.multiply(multiplier).multiply(finalBidAmount);
+    }
+
     @GetMapping("/highest/{lotId}")
     public Bid getHighestBid(@PathVariable Long lotId) {
         return bidRepository.findHighestBid(lotId).orElse(null);

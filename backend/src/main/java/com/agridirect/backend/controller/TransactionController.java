@@ -51,7 +51,7 @@ public class TransactionController {
         Lot lot = lotRepository.findById(request.getLotId()).orElseThrow();
         Bid highestBid = bidRepository.findHighestBid(request.getLotId()).orElseThrow();
 
-        BigDecimal finalPrice = highestBid.getBidAmount();
+        BigDecimal finalPrice = lot.getTotalPrice() != null ? lot.getTotalPrice() : highestBid.getBidAmount();
         BigDecimal platformFee = finalPrice.multiply(new BigDecimal("0.02"));
         BigDecimal gstAmount = platformFee.multiply(new BigDecimal("0.18"));
         BigDecimal totalAmount = finalPrice.add(platformFee).add(gstAmount);
@@ -67,6 +67,9 @@ public class TransactionController {
 
         lot.setStatus(Lot.Status.SOLD);
         lotRepository.save(lot);
+
+        highestBid.setStatus(Bid.Status.ACCEPTED);
+        bidRepository.save(highestBid);
 
         return transactionRepository.save(transaction);
     }

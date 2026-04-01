@@ -173,6 +173,26 @@ function RestaurantDashboard() {
                 transition={{ delay: i * 0.05 }}
                 className="product-card"
               >
+                {lot.imageUrl && (
+                  <div style={{ 
+                    width: '100%', 
+                    height: '160px', 
+                    borderRadius: '12px', 
+                    overflow: 'hidden',
+                    marginBottom: '16px',
+                    background: 'rgba(168, 224, 95, 0.1)'
+                  }}>
+                    <img 
+                      src={lot.imageUrl} 
+                      alt={lot.cropName}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                )}
+
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '12px' }}>
                   <div className="crop-name">{lot.cropName}</div>
                   <span className={`badge ${getStatusBadge(lot.status)}`}>
@@ -201,7 +221,7 @@ function RestaurantDashboard() {
                   </div>
                   <div>
                     <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Base Price</div>
-                    <div style={{ fontSize: '14px', fontWeight: 600 }}>₹{lot.basePrice}</div>
+                    <div style={{ fontSize: '14px', fontWeight: 600 }}>₹{lot.basePrice}/unit</div>
                   </div>
                 </div>
 

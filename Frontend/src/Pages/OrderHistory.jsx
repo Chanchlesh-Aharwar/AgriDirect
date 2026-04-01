@@ -16,7 +16,17 @@ function OrderHistory() {
   const fetchOrders = useCallback(async () => {
     try {
       const res = await API.get(`/transactions/user/${userId}`);
-      setOrders(res.data);
+      const ordersWithLots = await Promise.all(
+        res.data.map(async (order) => {
+          try {
+            const lotRes = await API.get(`/lots/${order.lotId}`);
+            return { ...order, lot: lotRes.data };
+          } catch {
+            return { ...order, lot: null };
+          }
+        })
+      );
+      setOrders(ordersWithLots);
     } catch (err) {
       console.error("Error fetching orders:", err);
     }
@@ -125,8 +135,25 @@ function OrderHistory() {
                   className="glass-card"
                   style={{ padding: '24px' }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
-                    <div>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '20px', flexWrap: 'wrap' }}>
+                    {order.lot?.imageUrl && (
+                      <div style={{
+                        width: '80px',
+                        height: '80px',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        flexShrink: 0,
+                        background: 'rgba(168, 224, 95, 0.1)',
+                      }}>
+                        <img 
+                          src={order.lot.imageUrl} 
+                          alt={order.lot.cropName}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          onError={(e) => e.target.style.display = 'none'}
+                        />
+                      </div>
+                    )}
+                    <div style={{ flex: 1, minWidth: '200px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
                         <div style={{
                           width: '40px',
@@ -140,11 +167,11 @@ function OrderHistory() {
                           <Package size={20} color="var(--accent-secondary)" />
                         </div>
                         <div>
-                          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '2px' }}>
-                            {isFarmer ? 'Sale' : 'Purchase'} #{order.id}
+                          <div style={{ fontSize: '16px', fontWeight: 700, marginBottom: '2px' }}>
+                            {order.lot?.cropName || `Lot #${order.lotId}`}
                           </div>
-                          <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-                            Lot #{order.lotId} • {new Date(order.createdAt).toLocaleDateString()}
+                          <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                            {isFarmer ? 'Sale' : 'Purchase'} #{order.id} • {new Date(order.createdAt).toLocaleDateString()}
                           </div>
                         </div>
                       </div>

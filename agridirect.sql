@@ -32,7 +32,8 @@ CREATE TABLE `bids` (
   `lot_id` bigint(20) NOT NULL,
   `restaurant_id` bigint(20) NOT NULL,
   `bid_amount` decimal(12,2) NOT NULL,
-  `bid_time` timestamp NOT NULL DEFAULT current_timestamp()
+  `bid_time` timestamp NOT NULL DEFAULT current_timestamp(),
+  `status` enum('PENDING','ACCEPTED','REJECTED') DEFAULT 'PENDING'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -50,6 +51,8 @@ CREATE TABLE `lots` (
   `unit` enum('KG','QUINTAL','TON') NOT NULL,
   `base_price` decimal(12,2) NOT NULL,
   `current_price` decimal(12,2) NOT NULL,
+  `total_price` decimal(12,2) DEFAULT NULL,
+  `image_url` varchar(500) DEFAULT NULL,
   `status` enum('OPEN','CLOSED','SOLD','CANCELLED') DEFAULT 'OPEN',
   `expiry_time` datetime NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -285,3 +288,8 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+-- Add new columns to existing tables
+ALTER TABLE `lots` ADD COLUMN `total_price` decimal(12,2) DEFAULT NULL AFTER `current_price`;
+ALTER TABLE `lots` ADD COLUMN `image_url` varchar(500) DEFAULT NULL AFTER `total_price`;
+ALTER TABLE `bids` ADD COLUMN `status` enum('PENDING','ACCEPTED','REJECTED') DEFAULT 'PENDING' AFTER `bid_time`;

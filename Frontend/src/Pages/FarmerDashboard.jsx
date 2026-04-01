@@ -159,23 +159,32 @@ function FarmerDashboard() {
                 transition={{ delay: i * 0.05 }}
                 className="product-card"
               >
+                {lot.imageUrl && (
+                  <div style={{ 
+                    width: '100%', 
+                    height: '160px', 
+                    borderRadius: '12px', 
+                    overflow: 'hidden',
+                    marginBottom: '16px',
+                    background: 'rgba(168, 224, 95, 0.1)'
+                  }}>
+                    <img 
+                      src={lot.imageUrl} 
+                      alt={lot.cropName}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                )}
+
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '12px' }}>
                   <div>
                     <div className="crop-name">{lot.cropName}</div>
                     <span className={`badge ${getStatusBadge(lot.status)}`}>
                       {lot.status}
                     </span>
-                  </div>
-                  <div style={{
-                    width: '44px',
-                    height: '44px',
-                    borderRadius: '12px',
-                    background: 'rgba(16,185,129,0.1)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                    <Leaf size={22} color="var(--accent-primary)" />
                   </div>
                 </div>
 
@@ -200,24 +209,41 @@ function FarmerDashboard() {
                   </div>
                   <div>
                     <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Base Price</div>
-                    <div style={{ fontSize: '14px', fontWeight: 600 }}>₹{lot.basePrice}</div>
+                    <div style={{ fontSize: '14px', fontWeight: 600 }}>₹{lot.basePrice}/unit</div>
                   </div>
                 </div>
 
-                <div style={{
-                  padding: '12px',
-                  background: 'rgba(16,185,129,0.08)',
-                  borderRadius: '10px',
-                  border: '1px solid rgba(16,185,129,0.15)',
-                  marginBottom: '16px',
-                }}>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
-                    Current Bid
+                {lot.status === 'SOLD' && lot.totalPrice ? (
+                  <div style={{
+                    padding: '12px',
+                    background: 'rgba(168, 224, 95, 0.15)',
+                    borderRadius: '10px',
+                    border: '1px solid rgba(168, 224, 95, 0.3)',
+                    marginBottom: '16px',
+                  }}>
+                    <div style={{ fontSize: '11px', color: 'var(--deep-moss)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
+                      Final Price
+                    </div>
+                    <div style={{ fontSize: '22px', fontWeight: 800, background: 'linear-gradient(135deg, var(--fresh-leaf), var(--deep-moss))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                      ₹{lot.totalPrice}
+                    </div>
                   </div>
-                  <div style={{ fontSize: '22px', fontWeight: 800, background: 'var(--accent-gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                    ₹{lot.currentPrice}
+                ) : (
+                  <div style={{
+                    padding: '12px',
+                    background: 'rgba(16,185,129,0.08)',
+                    borderRadius: '10px',
+                    border: '1px solid rgba(16,185,129,0.15)',
+                    marginBottom: '16px',
+                  }}>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
+                      Current Bid
+                    </div>
+                    <div style={{ fontSize: '22px', fontWeight: 800, background: 'var(--accent-gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                      ₹{lot.currentPrice}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div style={{
                   display: 'flex',

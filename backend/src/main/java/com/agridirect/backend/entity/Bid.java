@@ -24,6 +24,11 @@ public class Bid {
     @Column(name = "bid_time")
     private LocalDateTime bidTime = LocalDateTime.now();
 
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.PENDING;
+
+    public enum Status { PENDING, ACCEPTED, REJECTED }
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lot_id", insertable = false, updatable = false)
     private Lot lot;
@@ -52,4 +57,7 @@ public class Bid {
 
     public User getRestaurant() { return restaurant; }
     public void setRestaurant(User restaurant) { this.restaurant = restaurant; }
+
+    public Status getStatus() { return status; }
+    public void setStatus(Status status) { this.status = status; }
 }

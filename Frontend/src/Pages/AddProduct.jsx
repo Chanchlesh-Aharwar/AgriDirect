@@ -13,7 +13,8 @@ function AddProduct() {
     quantity: "",
     unit: "KG",
     basePrice: "",
-    expiryTime: ""
+    expiryTime: "",
+    imageUrl: ""
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -47,6 +48,7 @@ function AddProduct() {
       unit: formData.unit,
       basePrice: parseFloat(formData.basePrice),
       currentPrice: parseFloat(formData.basePrice),
+      imageUrl: formData.imageUrl || "",
       expiryTime: expiryDate.toISOString()
     };
 
@@ -158,6 +160,28 @@ function AddProduct() {
                   rows={3}
                   style={{ resize: 'vertical', fontFamily: 'inherit' }}
                 />
+              </div>
+
+              <div className="form-group">
+                <label>Product Image URL</label>
+                <input
+                  type="url"
+                  name="imageUrl"
+                  className="glass-input"
+                  placeholder="Enter image URL (e.g., https://example.com/image.jpg)"
+                  value={formData.imageUrl}
+                  onChange={handleChange}
+                />
+                {formData.imageUrl && (
+                  <div style={{ marginTop: '12px', borderRadius: '12px', overflow: 'hidden', maxWidth: '200px' }}>
+                    <img 
+                      src={formData.imageUrl} 
+                      alt="Product preview" 
+                      style={{ width: '100%', height: 'auto', borderRadius: '12px' }}
+                      onError={(e) => e.target.style.display = 'none'}
+                    />
+                  </div>
+                )}
               </div>
 
               <div style={{ display: 'flex', gap: '16px' }}>
