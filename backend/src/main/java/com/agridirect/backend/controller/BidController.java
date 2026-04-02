@@ -4,6 +4,7 @@ import com.agridirect.backend.entity.Bid;
 import com.agridirect.backend.entity.Lot;
 import com.agridirect.backend.repository.BidRepository;
 import com.agridirect.backend.repository.LotRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,25 +23,29 @@ public class BidController {
     private LotRepository lotRepository;
 
     @GetMapping("/lot/{lotId}")
-    public List<Bid> getBidsForLot(@PathVariable Long lotId) {
-        return bidRepository.findTopBidsByLotId(lotId);
+    public ResponseEntity<List<Bid>> getBidsForLot(@PathVariable Long lotId) {
+        List<Bid> bids = bidRepository.findByLotId(lotId);
+        return ResponseEntity.ok(bids);
     }
 
     @GetMapping("/restaurant/{restaurantId}")
-    public List<Bid> getRestaurantBids(@PathVariable Long restaurantId) {
-        return bidRepository.findByRestaurantId(restaurantId);
+    public ResponseEntity<List<Bid>> getRestaurantBids(@PathVariable Long restaurantId) {
+        return ResponseEntity.ok(bidRepository.findByRestaurantId(restaurantId));
     }
 
     @PostMapping
-    public Bid placeBid(@RequestBody Bid bid) {
-        Lot lot = lotRepository.findById(bid.getLotId()).orElseThrow();
+    public ResponseEntity<?> placeBid(@RequestBody Bid bid) {
+        Lot lot = lotRepository.findById(bid.getLotId()).orElse(null);
+        if (lot == null) {
+            return ResponseEntity.badRequest().body("Lot not found");
+        }
         
         if (lot.getStatus() != Lot.Status.OPEN) {
-            throw new RuntimeException("Lot is not open for bidding");
+            return ResponseEntity.badRequest().body("Lot is not open for bidding");
         }
 
         if (bid.getBidAmount().compareTo(lot.getCurrentPrice()) <= 0) {
-            throw new RuntimeException("Bid must be higher than current price");
+            return ResponseEntity.badRequest().body("Bid must be higher than current price");
         }
 
         Bid savedBid = bidRepository.save(bid);
@@ -48,13 +53,20 @@ public class BidController {
         lot.setCurrentPrice(bid.getBidAmount());
         lotRepository.save(lot);
 
-        return savedBid;
+        return ResponseEntity.ok(savedBid);
     }
 
     @PutMapping("/{bidId}/accept")
-    public Bid acceptBid(@PathVariable Long bidId) {
-        Bid bid = bidRepository.findById(bidId).orElseThrow();
-        Lot lot = lotRepository.findById(bid.getLotId()).orElseThrow();
+    public ResponseEntity<?> acceptBid(@PathVariable Long bidId) {
+        Bid bid = bidRepository.findById(bidId).orElse(null);
+        if (bid == null) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        Lot lot = lotRepository.findById(bid.getLotId()).orElse(null);
+        if (lot == null) {
+            return ResponseEntity.badRequest().body("Lot not found");
+        }
         
         lot.setStatus(Lot.Status.SOLD);
         
@@ -64,7 +76,7 @@ public class BidController {
         lotRepository.save(lot);
         
         bid.setStatus(Bid.Status.ACCEPTED);
-        return bidRepository.save(bid);
+        return ResponseEntity.ok(bidRepository.save(bid));
     }
 
     private BigDecimal calculateFinalPrice(BigDecimal quantity, Lot.Unit unit, BigDecimal finalBidAmount) {
@@ -78,7 +90,9 @@ public class BidController {
     }
 
     @GetMapping("/highest/{lotId}")
-    public Bid getHighestBid(@PathVariable Long lotId) {
-        return bidRepository.findHighestBid(lotId).orElse(null);
+    public ResponseEntity<Bid> getHighestBid(@PathVariable Long lotId) {
+        return bidRepository.findHighestBid(lotId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

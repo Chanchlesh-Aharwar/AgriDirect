@@ -17,6 +17,6 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
     @Query("SELECT b FROM Bid b WHERE b.lotId = :lotId ORDER BY b.bidAmount DESC")
     List<Bid> findTopBidsByLotId(@Param("lotId") Long lotId);
     
-    @Query("SELECT b FROM Bid b WHERE b.lotId = :lotId ORDER BY b.bidAmount DESC LIMIT 1")
+    @Query("SELECT b FROM Bid b WHERE b.lotId = :lotId ORDER BY b.bidAmount DESC")
     Optional<Bid> findHighestBid(@Param("lotId") Long lotId);
 }
