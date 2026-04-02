@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../Services/api";
 import DashboardLayout from "../Components/DashboardLayout";
 import { motion } from "framer-motion";
-import { PlusCircle, ArrowLeft, Info } from "lucide-react";
+import { PlusCircle, ArrowLeft, Info, Upload, X } from "lucide-react";
 
 function AddProduct() {
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
   const [formData, setFormData] = useState({
     cropName: "",
     description: "",
@@ -16,12 +17,33 @@ function AddProduct() {
     expiryTime: "",
     imageUrl: ""
   });
+  const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+        setFormData({ ...formData, imageUrl: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setImagePreview(null);
+    setFormData({ ...formData, imageUrl: "" });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -163,25 +185,67 @@ function AddProduct() {
               </div>
 
               <div className="form-group">
-                <label>Product Image URL</label>
+                <label>Product Image</label>
+                <div 
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{
+                    border: '2px dashed rgba(58, 95, 64, 0.3)',
+                    borderRadius: '16px',
+                    padding: '24px',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    background: 'rgba(168, 224, 95, 0.05)',
+                    transition: 'var(--transition)',
+                  }}
+                >
+                  {imagePreview ? (
+                    <div style={{ position: 'relative', display: 'inline-block' }}>
+                      <img 
+                        src={imagePreview} 
+                        alt="Product preview" 
+                        style={{ maxWidth: '200px', maxHeight: '200px', borderRadius: '12px' }}
+                      />
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); removeImage(); }}
+                        style={{
+                          position: 'absolute',
+                          top: '-10px',
+                          right: '-10px',
+                          background: '#ef4444',
+                          border: 'none',
+                          borderRadius: '50%',
+                          width: '24px',
+                          height: '24px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          color: 'white',
+                        }}
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload size={32} style={{ color: 'var(--text-muted)', marginBottom: '8px' }} />
+                      <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
+                        Click to upload product image
+                      </p>
+                      <p style={{ color: 'var(--text-light)', fontSize: '12px' }}>
+                        PNG, JPG up to 5MB
+                      </p>
+                    </>
+                  )}
+                </div>
                 <input
-                  type="url"
-                  name="imageUrl"
-                  className="glass-input"
-                  placeholder="Enter image URL (e.g., https://example.com/image.jpg)"
-                  value={formData.imageUrl}
-                  onChange={handleChange}
+                  type="file"
+                  ref={fileInputRef}
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  style={{ display: 'none' }}
                 />
-                {formData.imageUrl && (
-                  <div style={{ marginTop: '12px', borderRadius: '12px', overflow: 'hidden', maxWidth: '200px' }}>
-                    <img 
-                      src={formData.imageUrl} 
-                      alt="Product preview" 
-                      style={{ width: '100%', height: 'auto', borderRadius: '12px' }}
-                      onError={(e) => e.target.style.display = 'none'}
-                    />
-                  </div>
-                )}
               </div>
 
               <div style={{ display: 'flex', gap: '16px' }}>

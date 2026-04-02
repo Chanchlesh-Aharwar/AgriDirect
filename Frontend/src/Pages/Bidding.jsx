@@ -15,6 +15,7 @@ function Bidding() {
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [timeLeft, setTimeLeft] = useState(null);
   const userId = localStorage.getItem("userId");
   const userRole = localStorage.getItem("role");
 
@@ -22,11 +23,29 @@ function Bidding() {
     try {
       const res = await API.get(`/lots/${id}`);
       setLot(res.data);
+      if (res.data.expiryTime) {
+        updateTimeLeft(res.data.expiryTime);
+      }
     } catch {
       setError("Failed to load lot details");
     }
     setLoading(false);
   }, [id]);
+
+  const updateTimeLeft = (expiryTime) => {
+    const diff = new Date(expiryTime) - new Date();
+    if (diff <= 0) {
+      setTimeLeft("Expired");
+    } else {
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((diff % (1000 * 60)) / 1000);
+      if (days > 0) setTimeLeft(`${days}d ${hours}h ${mins}m`);
+      else if (hours > 0) setTimeLeft(`${hours}h ${mins}m ${secs}s`);
+      else setTimeLeft(`${mins}m ${secs}s`);
+    }
+  };
 
   const fetchBids = useCallback(async () => {
     try {
@@ -40,6 +59,22 @@ function Bidding() {
   useEffect(() => {
     fetchLotDetails();
     fetchBids();
+    
+    const interval = setInterval(() => {
+      fetchLotDetails();
+      fetchBids();
+    }, 5000);
+
+    const timer = setInterval(() => {
+      if (lot?.expiryTime) {
+        updateTimeLeft(lot.expiryTime);
+      }
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+      clearInterval(timer);
+    };
   }, [id, fetchLotDetails, fetchBids]);
 
   const placeBid = async (e) => {
@@ -125,17 +160,15 @@ function Bidding() {
   const canPlaceBid = lot.status === "OPEN" && !isFarmer;
   const minBid = parseFloat(lot.currentPrice) + 1;
 
-  const timeRemaining = lot.expiryTime
-    ? (() => {
-        const diff = new Date(lot.expiryTime) - new Date();
-        if (diff <= 0) return "Expired";
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        if (days > 0) return `${days}d ${hours}h left`;
-        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        return `${hours}h ${mins}m left`;
-      })()
-    : "N/A";
+  const displayTime = timeLeft || (lot.expiryTime ? (() => {
+    const diff = new Date(lot.expiryTime) - new Date();
+    if (diff <= 0) return "Expired";
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    if (days > 0) return `${days}d ${hours}h`;
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    return `${hours}h ${mins}m`;
+  })() : "N/A");
 
   return (
     <DashboardLayout role={userRole}>
@@ -154,6 +187,23 @@ function Bidding() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
             <div className="glass-card-static" style={{ padding: '32px' }}>
+              {lot.imageUrl && (
+                <div style={{
+                  width: '100%',
+                  height: '200px',
+                  borderRadius: '12px',
+                  overflow: 'hidden',
+                  marginBottom: '20px',
+                  background: 'rgba(168, 224, 95, 0.1)',
+                }}>
+                  <img 
+                    src={lot.imageUrl} 
+                    alt={lot.cropName}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    onError={(e) => e.target.style.display = 'none'}
+                  />
+                </div>
+              )}
               <div style={{
                 width: '56px',
                 height: '56px',
@@ -203,8 +253,8 @@ function Bidding() {
                 </div>
                 <div>
                   <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>Time Left</div>
-                  <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Clock size={14} /> {timeRemaining}
+                  <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', color: timeLeft === "Expired" ? '#ef4444' : 'inherit' }}>
+                    <Clock size={14} /> {displayTime}
                   </div>
                 </div>
               </div>
