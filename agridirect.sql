@@ -297,3 +297,16 @@ ALTER TABLE `lots` ADD COLUMN `image_data` longblob DEFAULT NULL AFTER `total_pr
 ALTER TABLE `lots` ADD COLUMN `location` varchar(255) DEFAULT NULL AFTER `image_data`;
 ALTER TABLE `bids` ADD COLUMN `status` enum('PENDING','ACCEPTED','REJECTED') DEFAULT 'PENDING' AFTER `bid_time`;
 ALTER TABLE `users` ADD COLUMN `location` varchar(255) DEFAULT NULL AFTER `phone`;
+
+-- Create messages table for chat
+CREATE TABLE IF NOT EXISTS `messages` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `transaction_id` bigint(20) DEFAULT NULL,
+  `sender_id` bigint(20) NOT NULL,
+  `receiver_id` bigint(20) NOT NULL,
+  `content` text DEFAULT NULL,
+  `sender_role` varchar(50) DEFAULT NULL,
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  `is_read` tinyint(1) DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

@@ -2,13 +2,15 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../Services/api";
 import DashboardLayout from "../Components/DashboardLayout";
-import { motion } from "framer-motion";
-import { History, CreditCard, Truck, CheckCircle, Package, AlertCircle } from "lucide-react";
+import Chat from "../Components/Chat";
+import { motion, AnimatePresence } from "framer-motion";
+import { History, CreditCard, Truck, CheckCircle, Package, AlertCircle, MessageCircle } from "lucide-react";
 
 function OrderHistory() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeChat, setActiveChat] = useState(null);
   const userId = localStorage.getItem("userId");
   const userRole = localStorage.getItem("role");
   const isFarmer = userRole === "FARMER";
@@ -252,6 +254,27 @@ function OrderHistory() {
                       </motion.button>
                     )}
 
+                    {(order.transactionStatus === "PAID" || order.transactionStatus === "COMPLETED") && (
+                      <motion.button
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => setActiveChat({ 
+                          transactionId: order.id, 
+                          receiverId: isFarmer ? order.winnerId : order.lot?.farmerId,
+                          order: order 
+                        })}
+                        style={{
+                          background: 'rgba(168, 224, 95, 0.1)',
+                          border: '1px solid rgba(168, 224, 95, 0.3)',
+                          color: 'var(--deep-moss)',
+                        }}
+                      >
+                        <MessageCircle size={14} />
+                        Chat
+                      </motion.button>
+                    )}
+
                     {isFarmer && order.transactionStatus === "PAID" && (
                       <motion.button
                         whileHover={{ scale: 1.03 }}
@@ -287,6 +310,17 @@ function OrderHistory() {
           </div>
         )}
       </div>
+      <AnimatePresence>
+        {activeChat && (
+          <Chat
+            transactionId={activeChat.transactionId}
+            receiverId={activeChat.receiverId}
+            senderRole={userRole}
+            currentUserId={parseInt(userId)}
+            onClose={() => setActiveChat(null)}
+          />
+        )}
+      </AnimatePresence>
     </DashboardLayout>
   );
 }
