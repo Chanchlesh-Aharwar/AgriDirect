@@ -310,3 +310,16 @@ CREATE TABLE IF NOT EXISTS `messages` (
   `is_read` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Create OTPs table for mobile verification
+CREATE TABLE IF NOT EXISTS `otps` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `phone_number` varchar(20) NOT NULL,
+  `otp_code` varchar(10) NOT NULL,
+  `purpose` varchar(50) DEFAULT 'REGISTRATION',
+  `expires_at` datetime NOT NULL,
+  `verified` tinyint(1) DEFAULT 0,
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_phone_purpose` (`phone_number`, `purpose`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
