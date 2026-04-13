@@ -81,8 +81,12 @@ public class LotController {
             lot.setStatus(Lot.Status.OPEN);
             
             if (expiryTime != null && !expiryTime.isEmpty()) {
-                java.time.ZonedDateTime zdt = java.time.ZonedDateTime.parse(expiryTime);
-                lot.setExpiryTime(zdt.toLocalDateTime());
+                try {
+                    java.time.Instant instant = java.time.Instant.parse(expiryTime);
+                    lot.setExpiryTime(instant.atZone(java.time.ZoneId.systemDefault()).toLocalDateTime());
+                } catch (Exception ex) {
+                    lot.setExpiryTime(java.time.LocalDateTime.parse(expiryTime.substring(0, 19)));
+                }
             }
 
             if (image != null && !image.isEmpty()) {

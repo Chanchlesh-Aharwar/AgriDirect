@@ -59,9 +59,6 @@ function AddProduct() {
       return;
     }
 
-    const expiryDate = new Date(formData.expiryTime);
-    expiryDate.setHours(23, 59, 59, 0);
-
     const formDataToSend = new FormData();
     formDataToSend.append("farmerId", parseInt(userId));
     formDataToSend.append("cropName", formData.cropName);
@@ -69,7 +66,7 @@ function AddProduct() {
     formDataToSend.append("quantity", parseFloat(formData.quantity));
     formDataToSend.append("unit", formData.unit);
     formDataToSend.append("basePrice", parseFloat(formData.basePrice));
-    formDataToSend.append("expiryTime", expiryDate.toISOString());
+    formDataToSend.append("expiryTime", formData.expiryTime + "T23:59:59");
     if (imageFile) {
       formDataToSend.append("image", imageFile);
     }
