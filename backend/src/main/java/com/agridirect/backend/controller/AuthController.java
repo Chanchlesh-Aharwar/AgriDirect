@@ -36,6 +36,7 @@ public class AuthController {
         user.setPassword(encoder.encode(request.get("password")));
         user.setRole(request.get("role"));
         user.setPhone(request.get("phone"));
+        user.setLocation(request.get("location"));
 
         repo.save(user);
 

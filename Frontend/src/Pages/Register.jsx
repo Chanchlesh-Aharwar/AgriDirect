@@ -9,7 +9,8 @@ function Register() {
     email: "",
     phone: "",
     password: "",
-    role: "FARMER"
+    role: "FARMER",
+    location: ""
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -85,6 +86,18 @@ function Register() {
               placeholder="Enter your phone number"
               value={data.phone}
               onChange={(e) => setData({ ...data, phone: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Location</label>
+            <input
+              type="text"
+              className="glass-input"
+              placeholder="Enter your city/district"
+              value={data.location}
+              onChange={(e) => setData({ ...data, location: e.target.value })}
               required
             />
           </div>

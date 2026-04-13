@@ -28,6 +28,11 @@ public class LotController {
         return lotRepository.findByStatus(Lot.Status.OPEN);
     }
 
+    @GetMapping("/all")
+    public List<Lot> getAllLots() {
+        return lotRepository.findAll();
+    }
+
     @GetMapping("/farmer/{farmerId}")
     public List<Lot> getFarmerLots(@PathVariable Long farmerId) {
         return lotRepository.findByFarmerId(farmerId);
@@ -67,6 +72,7 @@ public class LotController {
             @RequestParam("unit") String unit,
             @RequestParam("basePrice") BigDecimal basePrice,
             @RequestParam("expiryTime") String expiryTime,
+            @RequestParam(value = "location", required = false) String location,
             @RequestParam(value = "image", required = false) MultipartFile image
     ) {
         try {
@@ -79,6 +85,7 @@ public class LotController {
             lot.setBasePrice(basePrice);
             lot.setCurrentPrice(basePrice);
             lot.setStatus(Lot.Status.OPEN);
+            lot.setLocation(location);
             
             if (expiryTime != null && !expiryTime.isEmpty()) {
                 try {

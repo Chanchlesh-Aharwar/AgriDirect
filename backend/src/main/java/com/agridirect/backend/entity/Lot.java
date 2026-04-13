@@ -40,6 +40,8 @@ public class Lot {
     @Column(name = "image_data", columnDefinition = "LONGBLOB")
     private byte[] imageData;
 
+    private String location;
+
     @Enumerated(EnumType.STRING)
     private Status status = Status.OPEN;
 
@@ -81,6 +83,9 @@ public class Lot {
 
     public byte[] getImageData() { return imageData; }
     public void setImageData(byte[] imageData) { this.imageData = imageData; }
+
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
 
     public Status getStatus() { return status; }
     public void setStatus(Status status) { this.status = status; }

@@ -14,7 +14,8 @@ function AddProduct() {
     quantity: "",
     unit: "KG",
     basePrice: "",
-    expiryTime: ""
+    expiryTime: "",
+    location: ""
   });
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
@@ -67,6 +68,7 @@ function AddProduct() {
     formDataToSend.append("unit", formData.unit);
     formDataToSend.append("basePrice", parseFloat(formData.basePrice));
     formDataToSend.append("expiryTime", formData.expiryTime + "T23:59:59");
+    formDataToSend.append("location", formData.location || "");
     if (imageFile) {
       formDataToSend.append("image", imageFile);
     }
@@ -182,6 +184,19 @@ function AddProduct() {
                   onChange={handleChange}
                   rows={3}
                   style={{ resize: 'vertical', fontFamily: 'inherit' }}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Location *</label>
+                <input
+                  type="text"
+                  name="location"
+                  className="glass-input"
+                  placeholder="e.g., Indore, MP or Village, District"
+                  value={formData.location}
+                  onChange={handleChange}
+                  required
                 />
               </div>
 

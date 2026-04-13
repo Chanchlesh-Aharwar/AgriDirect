@@ -15,7 +15,7 @@ function RestaurantDashboard() {
 
   const fetchOpenLots = useCallback(async () => {
     try {
-      const res = await API.get("/lots");
+      const res = await API.get("/lots/all");
       setLots(res.data);
     } catch (err) {
       console.error("Error fetching lots:", err);
@@ -108,10 +108,22 @@ function RestaurantDashboard() {
         </div>
 
         <div className="section-header">
-          <h2 className="section-title">Available <span>Products</span></h2>
+          <h2 className="section-title">All <span>Products</span></h2>
         </div>
 
         <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
+          <select
+            className="glass-select"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            style={{ minWidth: '150px' }}
+          >
+            <option value="ALL">All Status</option>
+            <option value="OPEN">Open</option>
+            <option value="CLOSED">Closed</option>
+            <option value="SOLD">Sold</option>
+          </select>
+
           <div style={{ position: 'relative', flex: '1', minWidth: '200px' }}>
             <Search size={16} style={{
               position: 'absolute',
