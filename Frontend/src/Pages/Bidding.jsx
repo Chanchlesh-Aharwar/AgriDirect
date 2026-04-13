@@ -187,7 +187,7 @@ function Bidding() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
             <div className="glass-card-static" style={{ padding: '32px' }}>
-              {lot.imageUrl && (
+              {lot.imageData && (
                 <div style={{
                   width: '100%',
                   height: '200px',
@@ -197,7 +197,7 @@ function Bidding() {
                   background: 'rgba(168, 224, 95, 0.1)',
                 }}>
                   <img 
-                    src={lot.imageUrl} 
+                    src={`data:image/jpeg;base64,${lot.imageData}`} 
                     alt={lot.cropName}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     onError={(e) => e.target.style.display = 'none'}

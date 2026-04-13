@@ -14,10 +14,10 @@ function AddProduct() {
     quantity: "",
     unit: "KG",
     basePrice: "",
-    expiryTime: "",
-    imageUrl: ""
+    expiryTime: ""
   });
   const [imagePreview, setImagePreview] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -32,7 +32,7 @@ function AddProduct() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
-        setFormData({ ...formData, imageUrl: reader.result });
+        setImageFile(file);
       };
       reader.readAsDataURL(file);
     }
@@ -40,7 +40,7 @@ function AddProduct() {
 
   const removeImage = () => {
     setImagePreview(null);
-    setFormData({ ...formData, imageUrl: "" });
+    setImageFile(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -62,24 +62,28 @@ function AddProduct() {
     const expiryDate = new Date(formData.expiryTime);
     expiryDate.setHours(23, 59, 59, 0);
 
-    const lotData = {
-      farmerId: parseInt(userId),
-      cropName: formData.cropName,
-      description: formData.description || "",
-      quantity: parseFloat(formData.quantity),
-      unit: formData.unit,
-      basePrice: parseFloat(formData.basePrice),
-      currentPrice: parseFloat(formData.basePrice),
-      imageUrl: formData.imageUrl || "",
-      expiryTime: expiryDate.toISOString()
-    };
+    const formDataToSend = new FormData();
+    formDataToSend.append("farmerId", parseInt(userId));
+    formDataToSend.append("cropName", formData.cropName);
+    formDataToSend.append("description", formData.description || "");
+    formDataToSend.append("quantity", parseFloat(formData.quantity));
+    formDataToSend.append("unit", formData.unit);
+    formDataToSend.append("basePrice", parseFloat(formData.basePrice));
+    formDataToSend.append("expiryTime", expiryDate.toISOString());
+    if (imageFile) {
+      formDataToSend.append("image", imageFile);
+    }
 
     try {
-      await API.post("/lots", lotData);
+      await API.post("/lots", formDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
       setSuccess("Product added successfully!");
       setTimeout(() => navigate("/farmer/dashboard"), 1500);
     } catch (err) {
-      setError(err.response?.data?.message || err.response?.data || "Failed to add product.");
+      setError(err.response?.data?.error || err.response?.data || "Failed to add product.");
     }
     setLoading(false);
   };

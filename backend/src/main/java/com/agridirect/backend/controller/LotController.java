@@ -2,12 +2,18 @@ package com.agridirect.backend.controller;
 
 import com.agridirect.backend.entity.Lot;
 import com.agridirect.backend.repository.LotRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/lots")
@@ -28,21 +34,70 @@ public class LotController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Lot> getLotById(@PathVariable Long id) {
+    public ResponseEntity<?> getLotById(@PathVariable Long id) {
         return lotRepository.findById(id)
-                .map(ResponseEntity::ok)
+                .map(lot -> {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("id", lot.getId());
+                    response.put("farmerId", lot.getFarmerId());
+                    response.put("cropName", lot.getCropName());
+                    response.put("description", lot.getDescription());
+                    response.put("quantity", lot.getQuantity());
+                    response.put("unit", lot.getUnit());
+                    response.put("basePrice", lot.getBasePrice());
+                    response.put("currentPrice", lot.getCurrentPrice());
+                    response.put("totalPrice", lot.getTotalPrice());
+                    response.put("status", lot.getStatus());
+                    response.put("expiryTime", lot.getExpiryTime());
+                    response.put("createdAt", lot.getCreatedAt());
+                    if (lot.getImageData() != null) {
+                        response.put("imageData", Base64.getEncoder().encodeToString(lot.getImageData()));
+                    }
+                    return ResponseEntity.ok(response);
+                })
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Lot createLot(@RequestBody Lot lot) {
-        lot.setStatus(Lot.Status.OPEN);
-        lot.setCurrentPrice(lot.getBasePrice());
-        
-        BigDecimal totalPrice = calculateTotalPrice(lot.getQuantity(), lot.getUnit(), lot.getBasePrice());
-        lot.setTotalPrice(totalPrice);
-        
-        return lotRepository.save(lot);
+    public ResponseEntity<?> createLot(
+            @RequestParam("farmerId") Long farmerId,
+            @RequestParam("cropName") String cropName,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam("quantity") BigDecimal quantity,
+            @RequestParam("unit") String unit,
+            @RequestParam("basePrice") BigDecimal basePrice,
+            @RequestParam("expiryTime") String expiryTime,
+            @RequestParam(value = "image", required = false) MultipartFile image
+    ) {
+        try {
+            Lot lot = new Lot();
+            lot.setFarmerId(farmerId);
+            lot.setCropName(cropName);
+            lot.setDescription(description);
+            lot.setQuantity(quantity);
+            lot.setUnit(Lot.Unit.valueOf(unit));
+            lot.setBasePrice(basePrice);
+            lot.setCurrentPrice(basePrice);
+            lot.setStatus(Lot.Status.OPEN);
+            
+            if (expiryTime != null && !expiryTime.isEmpty()) {
+                lot.setExpiryTime(java.time.LocalDateTime.parse(expiryTime));
+            }
+
+            BigDecimal totalPrice = calculateTotalPrice(lot.getQuantity(), lot.getUnit(), lot.getBasePrice());
+            lot.setTotalPrice(totalPrice);
+
+            if (image != null && !image.isEmpty()) {
+                lot.setImageData(image.getBytes());
+            }
+
+            Lot saved = lotRepository.save(lot);
+            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Failed to create lot: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
     }
 
     private BigDecimal calculateTotalPrice(BigDecimal quantity, Lot.Unit unit, BigDecimal basePrice) {

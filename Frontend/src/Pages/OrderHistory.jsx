@@ -136,7 +136,7 @@ function OrderHistory() {
                   style={{ padding: '24px' }}
                 >
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '20px', flexWrap: 'wrap' }}>
-                    {order.lot?.imageUrl && (
+                    {order.lot?.imageData && (
                       <div style={{
                         width: '80px',
                         height: '80px',
@@ -146,7 +146,7 @@ function OrderHistory() {
                         background: 'rgba(168, 224, 95, 0.1)',
                       }}>
                         <img 
-                          src={order.lot.imageUrl} 
+                          src={`data:image/jpeg;base64,${order.lot.imageData}`} 
                           alt={order.lot.cropName}
                           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                           onError={(e) => e.target.style.display = 'none'}

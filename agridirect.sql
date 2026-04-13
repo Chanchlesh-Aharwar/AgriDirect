@@ -52,7 +52,7 @@ CREATE TABLE `lots` (
   `base_price` decimal(12,2) NOT NULL,
   `current_price` decimal(12,2) NOT NULL,
   `total_price` decimal(12,2) DEFAULT NULL,
-  `image_url` varchar(500) DEFAULT NULL,
+  `image_data` longblob DEFAULT NULL,
   `status` enum('OPEN','CLOSED','SOLD','CANCELLED') DEFAULT 'OPEN',
   `expiry_time` datetime NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -291,5 +291,5 @@ COMMIT;
 
 -- Add new columns to existing tables
 ALTER TABLE `lots` ADD COLUMN `total_price` decimal(12,2) DEFAULT NULL AFTER `current_price`;
-ALTER TABLE `lots` ADD COLUMN `image_url` varchar(500) DEFAULT NULL AFTER `total_price`;
+ALTER TABLE `lots` ADD COLUMN `image_data` longblob DEFAULT NULL AFTER `total_price`;
 ALTER TABLE `bids` ADD COLUMN `status` enum('PENDING','ACCEPTED','REJECTED') DEFAULT 'PENDING' AFTER `bid_time`;

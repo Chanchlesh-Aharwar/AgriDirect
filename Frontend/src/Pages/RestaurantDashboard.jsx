@@ -173,7 +173,7 @@ function RestaurantDashboard() {
                 transition={{ delay: i * 0.05 }}
                 className="product-card"
               >
-                {lot.imageUrl && (
+                {lot.imageData && (
                   <div style={{ 
                     width: '100%', 
                     height: '160px', 
@@ -183,7 +183,7 @@ function RestaurantDashboard() {
                     background: 'rgba(168, 224, 95, 0.1)'
                   }}>
                     <img 
-                      src={lot.imageUrl} 
+                      src={`data:image/jpeg;base64,${lot.imageData}`} 
                       alt={lot.cropName}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       onError={(e) => {

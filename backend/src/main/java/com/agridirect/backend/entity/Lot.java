@@ -36,8 +36,9 @@ public class Lot {
     @Column(name = "total_price", precision = 12, scale = 2)
     private BigDecimal totalPrice;
 
-    @Column(name = "image_url")
-    private String imageUrl;
+    @Lob
+    @Column(name = "image_data", columnDefinition = "LONGBLOB")
+    private byte[] imageData;
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.OPEN;
@@ -78,8 +79,8 @@ public class Lot {
     public BigDecimal getTotalPrice() { return totalPrice; }
     public void setTotalPrice(BigDecimal totalPrice) { this.totalPrice = totalPrice; }
 
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public byte[] getImageData() { return imageData; }
+    public void setImageData(byte[] imageData) { this.imageData = imageData; }
 
     public Status getStatus() { return status; }
     public void setStatus(Status status) { this.status = status; }
