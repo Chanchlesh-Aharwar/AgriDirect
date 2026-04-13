@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -47,11 +45,24 @@ public class TransactionController {
     }
 
     @PostMapping("/create")
-    public Transaction createTransaction(@RequestBody CreateTransactionRequest request) {
-        Lot lot = lotRepository.findById(request.getLotId()).orElseThrow();
-        Bid highestBid = bidRepository.findHighestBid(request.getLotId()).orElseThrow();
+    public ResponseEntity<?> createTransaction(@RequestBody CreateTransactionRequest request) {
+        Lot lot = lotRepository.findById(request.getLotId()).orElse(null);
+        if (lot == null) {
+            return ResponseEntity.badRequest().body("{\"error\": \"Lot not found\"}");
+        }
 
-        BigDecimal finalPrice = lot.getTotalPrice() != null ? lot.getTotalPrice() : highestBid.getBidAmount();
+        Bid highestBid = bidRepository.findHighestBid(request.getLotId()).orElse(null);
+        if (highestBid == null) {
+            return ResponseEntity.badRequest().body("{\"error\": \"No bids found for this lot\"}");
+        }
+
+        BigDecimal totalUnits = getTotalUnits(lot.getQuantity(), lot.getUnit());
+        BigDecimal finalPrice = totalUnits.multiply(highestBid.getBidAmount());
+        
+        lot.setTotalPrice(finalPrice);
+        lot.setStatus(Lot.Status.SOLD);
+        lotRepository.save(lot);
+
         BigDecimal platformFee = finalPrice.multiply(new BigDecimal("0.02"));
         BigDecimal gstAmount = platformFee.multiply(new BigDecimal("0.18"));
         BigDecimal totalAmount = finalPrice.add(platformFee).add(gstAmount);
@@ -65,27 +76,40 @@ public class TransactionController {
         transaction.setTotalAmount(totalAmount);
         transaction.setTransactionStatus(Transaction.TransactionStatus.PENDING);
 
-        lot.setStatus(Lot.Status.SOLD);
-        lotRepository.save(lot);
-
         highestBid.setStatus(Bid.Status.ACCEPTED);
         bidRepository.save(highestBid);
 
-        return transactionRepository.save(transaction);
+        return ResponseEntity.ok(transactionRepository.save(transaction));
+    }
+
+    private BigDecimal getTotalUnits(BigDecimal quantity, Lot.Unit unit) {
+        BigDecimal multiplier = switch (unit) {
+            case KG -> BigDecimal.ONE;
+            case QUINTAL -> new BigDecimal("100");
+            case TON -> new BigDecimal("1000");
+            default -> BigDecimal.ONE;
+        };
+        return quantity.multiply(multiplier);
     }
 
     @PutMapping("/{id}/pay")
-    public Transaction markAsPaid(@PathVariable Long id) {
-        Transaction transaction = transactionRepository.findById(id).orElseThrow();
-        transaction.setTransactionStatus(Transaction.TransactionStatus.PAID);
-        return transactionRepository.save(transaction);
+    public ResponseEntity<?> markAsPaid(@PathVariable Long id) {
+        return transactionRepository.findById(id)
+                .map(transaction -> {
+                    transaction.setTransactionStatus(Transaction.TransactionStatus.PAID);
+                    return ResponseEntity.ok(transactionRepository.save(transaction));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}/complete")
-    public Transaction markAsCompleted(@PathVariable Long id) {
-        Transaction transaction = transactionRepository.findById(id).orElseThrow();
-        transaction.setTransactionStatus(Transaction.TransactionStatus.COMPLETED);
-        return transactionRepository.save(transaction);
+    public ResponseEntity<?> markAsCompleted(@PathVariable Long id) {
+        return transactionRepository.findById(id)
+                .map(transaction -> {
+                    transaction.setTransactionStatus(Transaction.TransactionStatus.COMPLETED);
+                    return ResponseEntity.ok(transactionRepository.save(transaction));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     public static class CreateTransactionRequest {

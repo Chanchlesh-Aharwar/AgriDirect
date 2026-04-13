@@ -84,9 +84,6 @@ public class LotController {
                 lot.setExpiryTime(java.time.LocalDateTime.parse(expiryTime));
             }
 
-            BigDecimal totalPrice = calculateTotalPrice(lot.getQuantity(), lot.getUnit(), lot.getBasePrice());
-            lot.setTotalPrice(totalPrice);
-
             if (image != null && !image.isEmpty()) {
                 lot.setImageData(image.getBytes());
             }
@@ -98,16 +95,6 @@ public class LotController {
             error.put("error", "Failed to create lot: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         }
-    }
-
-    private BigDecimal calculateTotalPrice(BigDecimal quantity, Lot.Unit unit, BigDecimal basePrice) {
-        BigDecimal multiplier = switch (unit) {
-            case KG -> BigDecimal.ONE;
-            case QUINTAL -> new BigDecimal("100");
-            case TON -> new BigDecimal("1000");
-            default -> BigDecimal.ONE;
-        };
-        return quantity.multiply(multiplier).multiply(basePrice);
     }
 
     @PutMapping("/{id}")
